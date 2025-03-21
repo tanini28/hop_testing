@@ -4,12 +4,12 @@ on:
   push:
     branches: [ main, master ]
     paths:
-      - 'login/**'
+      - 'login_test/**'
       - '.github/workflows/login_test.yml'
   pull_request:
     branches: [ main, master ]
     paths:
-      - 'login/**'
+      - 'login_test/**'
   workflow_dispatch:  # Дозволяє запускати workflow вручну
 
 jobs:
@@ -18,17 +18,17 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4  # Оновлено до v4
+        uses: actions/checkout@v4
 
       - name: Set up JDK 21
-        uses: actions/setup-java@v4  # Оновлено до v4
+        uses: actions/setup-java@v4
         with:
-          java-version: '21'  # Java 23 ще немає, використовуємо стабільну 21
-          distribution: 'temurin'  # Використовуємо Temurin (Adoptium) JDK
-          cache: maven  # Вбудоване кешування Maven
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
 
       - name: Cache Maven packages
-        uses: actions/cache@v4  # Оновлено до v4
+        uses: actions/cache@v4
         with:
           path: ~/.m2/repository
           key: maven-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
@@ -36,6 +36,7 @@ jobs:
             maven-${{ runner.os }}-
 
       - name: Build and test with Maven
+        working-directory: ./login_test
         run: |
           mvn clean test \
             -DADMIN_USERNAME=${{ secrets.ADMIN_USERNAME }} \
@@ -43,8 +44,8 @@ jobs:
             -DBASE_URL=${{ secrets.BASE_URL }}
 
       - name: Upload test report
-        uses: actions/upload-artifact@v4  # Оновлено до v4
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: test-report
-          path: target/surefire-reports  # Шлях до JUnit звітів
+          path: login_test/target/surefire-reports
