@@ -16,11 +16,18 @@ public class TestInit {
     }
 
     @BeforeEach
-    public void setupTest() {
-        driver = new ChromeDriver();
-
-        driver.manage().window().maximize();
+public void setupTest() {
+    ChromeOptions options = new ChromeOptions();
+    if (System.getenv("CI") != null) {
+        options.addArguments("--headless");
+        options.addArguments("--disable-gpu");
+        options.addArguments("--no-sandbox");
+        options.addArguments("--disable-dev-shm-usage");
     }
+    
+    driver = new ChromeDriver(options);
+    driver.manage().window().maximize();
+}
 
     @AfterEach
     public void tearDown() {
