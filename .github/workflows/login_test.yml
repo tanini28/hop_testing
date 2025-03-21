@@ -28,12 +28,12 @@ jobs:
           cache: maven
 
       - name: Cache Maven packages
-        uses: actions/cache@v4
+        uses: actions/cache@v3
         with:
-          path: ~/.m2/repository
-          key: maven-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            maven-${{ runner.os }}-
+           path: ~/.m2/repository
+           key: maven-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+           restore-keys: |
+              maven-${{ runner.os }}-
 
       - name: Build and test with Maven
         working-directory: ./login_test
