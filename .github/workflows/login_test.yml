@@ -1,0 +1,45 @@
+name: Login Tests
+
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'login/**'
+      - '.github/workflows/login_test.yml'
+  pull_request:
+    branches: [ main, master ]
+    paths:
+      - 'login/**'
+  workflow_dispatch:  # Дозволяє запускати workflow вручну
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3  # Крок 1: Завантаження коду
+
+      - name: Set up JDK 23
+        uses: actions/setup-java@v3
+        with:
+          java-version: '23'  # Вказуємо версію Java
+          distribution: 'temurin'  # Використовуємо Temurin (Adoptium) JDK
+
+      - name: Cache Maven packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: maven-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            maven-${{ runner.os }}-
+
+      - name: Build and test with Maven
+        run: |
+          mvn clean test -DADMIN_USERNAME=${{ secrets.ADMIN_USERNAME }} -DADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }} -DBASE_URL=${{ secrets.BASE_URL }}
+
+      - name: Upload test report
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: test-report
+          path: target/surefire-reports  # Шлях до звітів JUnit
