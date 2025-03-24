@@ -33,8 +33,12 @@ public void setupTest() {
 
     @AfterEach
     public void tearDown() {
+        try {
             if (driver != null) {
                 driver.quit();
             }
+        } catch (Exception e) {
+            System.err.println("Error closing WebDriver: " + e.getMessage());
+        }
     }
 }

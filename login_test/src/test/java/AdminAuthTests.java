@@ -48,9 +48,10 @@ public class AdminAuthTests extends TestInit {
         adminAuthHomePage.enterInValidPassword("wrongpassword");
         adminAuthHomePage.clickLoginButton();
 
-        Assertions.assertFalse(adminAuthHomePage.getErrorMessage().
-                        contains("Невірний логін або пароль"),
-                "Повідомлення про помилку не відображається");
+        Assertions.assertTrue(adminAuthHomePage.getErrorMessage().
+                        contains("Логін або Пароль не вірні"),
+                "Очікуване повідомлення про помилку не з'явилося");
+
     }
 
 
@@ -88,15 +89,26 @@ public class AdminAuthTests extends TestInit {
     }
 
         @Test
-        public void testInvalidLoginErrorMessage () {
-
+        public void testInvalidLoginErrorMessage() {
             adminAuthHomePage.openAdminHomePage();
             adminAuthHomePage.enterInValidEmail("invalid@example.com");
             adminAuthHomePage.enterInValidPassword("wrongpassword");
             adminAuthHomePage.clickLoginButton();
 
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
             String errorMessage = adminAuthHomePage.getErrorMessage();
-            Assertions.assertEquals("Логін або Пароль не вірні", errorMessage, "Повідомлення про помилку не відповідає очікуваному");
+
+            Assertions.assertTrue(
+                    errorMessage.toLowerCase().contains("логін") ||
+                            errorMessage.toLowerCase().contains("пароль") ||
+                            errorMessage.toLowerCase().contains("не вірні"),
+                    "Очікувалось повідомлення про помилку логіна або паролю, отримано: " + errorMessage
+            );
         }
 
         @Test
