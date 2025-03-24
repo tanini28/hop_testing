@@ -10,7 +10,7 @@ on:
     branches: [ main, master ]
     paths:
       - 'login_test/**'
-  workflow_dispatch:  # Дозволяє запускати workflow вручну
+  workflow_dispatch:
 
 jobs:
   test:
@@ -35,13 +35,31 @@ jobs:
           restore-keys: |
             maven-${{ runner.os }}-
 
+      - name: Install Chrome
+        run: |
+          wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+          echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
+
+      - name: Check directory structure
+        run: |
+          pwd
+          ls -la
+          ls -la login_test || echo "login_test directory not found"
+
       - name: Build and test with Maven
         working-directory: ./login_test
         run: |
-          mvn clean test \
-            -DADMIN_USERNAME=${{ secrets.ADMIN_USERNAME }} \
-            -DADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }} \
-            -DBASE_URL=${{ secrets.BASE_URL }}
+          export CHROME_BIN=/usr/bin/google-chrome
+          mvn clean test -X \
+            -DADMIN_USERNAME='${{ secrets.ADMIN_USERNAME }}' \
+            -DADMIN_PASSWORD='${{ secrets.ADMIN_PASSWORD }}' \
+            -DBASE_URL='${{ secrets.BASE_URL }}'
+        env:
+          ADMIN_USERNAME: ${{ secrets.ADMIN_USERNAME }}
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+          BASE_URL: ${{ secrets.BASE_URL }}
 
       - name: Upload test report
         uses: actions/upload-artifact@v4

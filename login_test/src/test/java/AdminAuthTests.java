@@ -29,7 +29,7 @@ public class AdminAuthTests extends TestInit {
         super.setupTest();
         adminAuthHomePage = new AdminAuthHomePage(driver);
 
-        // Get credentials from environment variables (set by GitHub Actions)
+        
         adminUsername = System.getProperty("ADMIN_USERNAME", "exampleAdmin@gmail.com");
         adminPassword = System.getProperty("ADMIN_PASSWORD", "example1234admin");
         baseUrl = System.getProperty("BASE_URL", "https://hop-admin-angular.onrender.com");
@@ -56,6 +56,11 @@ public class AdminAuthTests extends TestInit {
         Assertions.assertTrue(adminAuthHomePage.getErrorMessage()
                         .contains("Логін або Пароль не вірні"),
                 "Повідомлення про помилку не відображається");
+
+        Assertions.assertTrue(adminAuthHomePage.getErrorMessage().
+                        contains("Логін або Пароль не вірні"),
+                "Очікуване повідомлення про помилку не з'явилося");
+
     }
 
     @Test
@@ -96,6 +101,7 @@ public class AdminAuthTests extends TestInit {
         Assertions.assertEquals("Логін або Пароль не вірні", errorMessage, "Повідомлення про помилку не відповідає очікуваному");
     }
 
+
     @Test
     public void testRedirectToDashboardAfterLogin() {
         adminAuthHomePage.openAdminHomePage();
@@ -110,6 +116,50 @@ public class AdminAuthTests extends TestInit {
         } catch (TimeoutException e) {
             String errorMessage = adminAuthHomePage.getErrorMessage();
             Assertions.fail("Перенаправлення на Dashboard не відбулося. Повідомлення про помилку: " + errorMessage);
+
+        @Test
+        public void testInvalidLoginErrorMessage() {
+            adminAuthHomePage.openAdminHomePage();
+            adminAuthHomePage.enterInValidEmail("invalid@example.com");
+            adminAuthHomePage.enterInValidPassword("wrongpassword");
+            adminAuthHomePage.clickLoginButton();
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            String errorMessage = adminAuthHomePage.getErrorMessage();
+
+            Assertions.assertTrue(
+                    errorMessage.toLowerCase().contains("логін") ||
+                            errorMessage.toLowerCase().contains("пароль") ||
+                            errorMessage.toLowerCase().contains("не вірні"),
+                    "Очікувалось повідомлення про помилку логіна або паролю, отримано: " + errorMessage
+            );
+        }
+
+        @Test
+        public void testRedirectToDashboardAfterLogin () {
+
+            adminAuthHomePage.openAdminHomePage();
+            adminAuthHomePage.enterValidEmail("exampleAdmin@gmail.com");
+            adminAuthHomePage.enterValidPassword("example1234admin");
+            adminAuthHomePage.clickLoginButton();
+
+
+            String expectedUrl = "https://hop-admin-angular.onrender.com/layout/dashboard";
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            try {
+                wait.until(ExpectedConditions.urlToBe(expectedUrl));
+            } catch (TimeoutException e) {
+                String errorMessage = adminAuthHomePage.getErrorMessage();
+                Assertions.fail("Перенаправлення на Dashboard не відбулося. Повідомлення про помилку: " + errorMessage);
+            }
+            String currentUrl = driver.getCurrentUrl();
+            Assertions.assertEquals(expectedUrl, currentUrl, "Після входу не відбувся перехід на сторінку Dashboard");
+          
         }
         String currentUrl = driver.getCurrentUrl();
         Assertions.assertEquals(expectedUrl, currentUrl, "Після входу не відбувся перехід на сторінку Dashboard");
