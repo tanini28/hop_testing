@@ -110,3 +110,4 @@ public class AdminAuthHomePage extends BasePage {
     public void clearToken() {
         ((JavascriptExecutor) driver).executeScript("window.localStorage.removeItem('token');");
     }
+}
