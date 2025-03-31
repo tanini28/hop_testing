@@ -29,8 +29,8 @@ public class AdminAuthTests extends TestInit {
         super.setupTest();
         adminAuthHomePage = new AdminAuthHomePage(driver);
 
-        adminUsername = System.getProperty("ADMIN_USERNAME", "exampleAdmin@gmail.com");
-        adminPassword = System.getProperty("ADMIN_PASSWORD", "example1234admin");
+        adminUsername = System.getProperty("ADMIN_USERNAME");
+        adminPassword = System.getProperty("ADMIN_PASSWORD");
         baseUrl = System.getProperty("BASE_URL", "https://hop-admin-angular.onrender.com");
     }
 
